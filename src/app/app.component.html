@@ -3,6 +3,24 @@
   <h1>
     Welcome to the {{title}}!
   </h1>
+
+  <div class="form-group">
+    <input type="file" name="video" id="video" accept="video/*" (change)="onFileUpload($event)">
+  </div>
+
+  <video width="400" 
+    controls 
+    autoplay 
+    id="video" 
+    (loadeddata)="onVidLoad($event)" 
+    (seeked)="onSeek($event)" *ngIf="showVideo">
+    <source [src]="videoPath">
+      Your browser does not support HTML5 video.
+  </video>
+
+  <canvas id="canvas" width="300" height="300" #canvas style="display:none"></canvas>
+  <div id="thumbnailContainer"></div>
+
 </div>
 
 <router-outlet></router-outlet>
