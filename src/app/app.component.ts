@@ -1,5 +1,5 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-
+import { Component, ViewChild } from '@angular/core';
+import { VideoSettings } from './properties/video.properties';
 
 @Component({
   selector: 'app-root',
@@ -12,40 +12,52 @@ export class AppComponent {
 
   videoPath = '';
   showVideo: boolean = false;
-  i = 0;
+  currentTime = 0;
+  paths: Array<String> = [];
+  frameTime: Number = 0;
 
   onFileUpload(event){
     this.renderVideo(event.target.files[0]);
     this.videoPath = '';
     this.showVideo = false;
-    this.i = 0;
-    document.getElementById('thumbnailContainer').innerHTML = '';
+    this.currentTime = 0;
+    this.paths = [];
   }
 
   renderVideo(file){
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (event) => {
-      this.videoPath = event.target['result'];
-      this.showVideo = true;
+      if(event.total < VideoSettings.maxVideoSize){
+        this.videoPath = event.target['result'];
+        this.showVideo = true;
+      }
+      else{
+        alert('video Size too long');
+        event.preventDefault();
+      }
     }
   }
 
-
   onVidLoad(event){
-    console.log(event);
-    setTimeout(() =>{
-      event.target.currentTime  = this.i;
-    },2000)
-    
+    console.log(event.target['duration']);
+    if(event.target['duration'] <= VideoSettings.maxVideoTime){
+      this.frameTime = Math.round(Math.round(event.target.duration)/VideoSettings.frameNo);
+      event.target.currentTime  = this.currentTime;
+    }else{
+      alert('video Time too long');
+      this.videoPath = '';
+      this.showVideo = false;
+      event.preventDefault();
+    }
   }
 
   onSeek(event){
     console.log(event);
-    this.generateImg(this.i, event);
-    this.i+= 3;
-    if(this.i <= event.target.duration){
-      event.target.currentTime = this.i;
+    this.generateImg(this.currentTime, event);
+    this.currentTime+= +this.frameTime;
+    if(this.currentTime <= event.target.duration){
+      event.target.currentTime = this.currentTime;
     }
   }
 
@@ -54,11 +66,6 @@ export class AppComponent {
     const context = canvas.getContext('2d');
     context.drawImage(e.target, 0, 0, 250, 180);
     const dataURL = canvas.toDataURL();
-
-    const img = new Image();
-    //img.crossOrigin="Anonymous";
-    img.setAttribute('src', dataURL);
-
-    document.getElementById('thumbnailContainer').appendChild(img);
+    this.paths.push(dataURL);
   }
 }

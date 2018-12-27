@@ -9,17 +9,20 @@
   </div>
 
   <video width="400" 
-    controls 
-    autoplay 
+    autoplay
     id="video" 
     (loadeddata)="onVidLoad($event)" 
-    (seeked)="onSeek($event)" *ngIf="showVideo">
+    (seeked)="onSeek($event)"
+    *ngIf="showVideo"
+    >
     <source [src]="videoPath">
       Your browser does not support HTML5 video.
   </video>
 
   <canvas id="canvas" width="300" height="300" #canvas style="display:none"></canvas>
-  <div id="thumbnailContainer"></div>
+  <div id="thumbnailContainer">
+    <img  *ngFor="let path of paths" [src]="path" alt="">
+  </div>
 
 </div>
 
